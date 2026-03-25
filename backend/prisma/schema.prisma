@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Herramienta {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  tipo          String
+  numeroSerie   String
+  marca         String
+  codigoInterno String
+  estado        String   @default("disponible")
+
+  bodegaId      Int
+  bodega        Bodega   @relation(fields: [bodegaId], references: [id])
+
+  creadaEn      DateTime @default(now())
+
+  movimientos   Movimiento[]
+}
+
+model Obra {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  ubicacion   String
+  creadaEn    DateTime @default(now())
+
+  movimientos Movimiento[]
+}
+
+model Movimiento {
+  id            Int      @id @default(autoincrement())
+  herramienta   Herramienta @relation(fields: [herramientaId], references: [id])
+  herramientaId Int
+
+  obra          Obra?   @relation(fields: [obraId], references: [id])
+  obraId        Int?
+
+  tipoMovimiento String   // asignacion / devolucion
+  fecha          DateTime @default(now())
+}
+
+model Bodega {
+  id        Int          @id @default(autoincrement())
+  nombre    String
+  ubicacion String?
+
+  herramientas Herramienta[]
+}
