@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const api = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([]);

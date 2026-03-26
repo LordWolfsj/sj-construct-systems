@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const apiBase = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 function StatCard({ title, value }) {
   return (

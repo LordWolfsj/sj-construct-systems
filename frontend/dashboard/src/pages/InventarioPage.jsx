@@ -5,7 +5,7 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import logoEmpresa from "../assets/logo.png";
 
-const apiBase = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 const EMPRESA = "SJ Construct";
 const RESPONSABLE = "Administrador de Bodega";

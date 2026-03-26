@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 
-const apiBase = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 const inputStyle = {
   padding: "10px",

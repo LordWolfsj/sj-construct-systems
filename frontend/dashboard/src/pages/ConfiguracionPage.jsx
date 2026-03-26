@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const apiBase = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 const inputStyle = {
   padding: "10px",

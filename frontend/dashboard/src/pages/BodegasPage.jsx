@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const apiBase = "http://localhost:5000/api";
+import { apiBase } from "../config";
 
 const inputStyle = {
   padding: "10px",
