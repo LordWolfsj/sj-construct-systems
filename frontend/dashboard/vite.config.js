@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     host: true,
-    allowedHosts: ['sj-construct-systems-production.up.railway.app']
+    allowedHosts: "all",
   }
 })
