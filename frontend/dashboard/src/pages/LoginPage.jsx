@@ -25,21 +25,29 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(`${apiBase}/usuarios/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password }),
-      });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    usuario,
+    password,
+  }),
+});
 
-      const data = await response.json();
+const contentType = response.headers.get("content-type") || "";
 
-      if (!response.ok) {
-        throw new Error(data?.error || "No se pudo iniciar sesión");
-      }
+const data = contentType.includes("application/json")
+  ? await response.json()
+  : await response.text();
 
-      login(data);
-      navigate("/");
+if (!response.ok) {
+  throw new Error(
+    typeof data === "string"
+      ? data
+      : data?.message || data?.error || "Error al iniciar sesión"
+  );
+}
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     }
