@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 import { apiBase } from "../config";
 
 const inputStyle = {
@@ -25,29 +24,36 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(`${apiBase}/usuarios/login`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    usuario,
-    password,
-  }),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          usuario: username,
+          password,
+        }),
+      });
 
-const contentType = response.headers.get("content-type") || "";
+      const contentType = response.headers.get("content-type") || "";
 
-const data = contentType.includes("application/json")
-  ? await response.json()
-  : await response.text();
+      const data = contentType.includes("application/json")
+        ? await response.json()
+        : await response.text();
 
-if (!response.ok) {
-  throw new Error(
-    typeof data === "string"
-      ? data
-      : data?.message || data?.error || "Error al iniciar sesión"
-  );
-}
+      if (!response.ok) {
+        throw new Error(
+          typeof data === "string"
+            ? data
+            : data?.message || data?.error || "Error al iniciar sesión"
+        );
+      }
+
+      if (!data?.success || !data?.user) {
+        throw new Error("Respuesta inválida del servidor");
+      }
+
+      login(data.user);
+      navigate("/");
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     }
