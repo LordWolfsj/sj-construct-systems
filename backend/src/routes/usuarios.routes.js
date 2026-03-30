@@ -1,3 +1,28 @@
+const express = require("express");
+const router = express.Router();
+const pool = require("../config/database");
+
+// Listar usuarios
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, nombre, username, rol, activo, fecha_creacion
+      FROM usuarios
+      ORDER BY id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("ERROR GET /api/usuarios:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error al listar usuarios",
+      detalle: error.message,
+    });
+  }
+});
+
+// Login
 router.post("/login", async (req, res) => {
   try {
     const { usuario, password } = req.body;
@@ -10,7 +35,11 @@ router.post("/login", async (req, res) => {
     }
 
     const result = await pool.query(
-      "SELECT * FROM usuarios WHERE username = $1 AND password = $2 AND activo = true",
+      `
+      SELECT id, nombre, username, password, rol, activo
+      FROM usuarios
+      WHERE username = $1 AND password = $2 AND activo = true
+      `,
       [usuario, password]
     );
 
