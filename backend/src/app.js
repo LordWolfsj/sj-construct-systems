@@ -30,14 +30,6 @@ app.use("/api/movimientos", movimientosRoutes);
 app.use("/api/contenedores", contenedoresRoutes);
 app.use("/api/movimientos-contenedores", movimientosContenedoresRoutes);
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({
-    success: false,
-    message: "Error interno del servidor",
-  });
-});
-
 app.get("/", (req, res) => {
   res.send("API funcionando");
 });
