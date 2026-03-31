@@ -366,7 +366,7 @@ const cerrarReparacion = async (e) => {
                 <option value="">Selecciona una herramienta</option>
                 {herramientasParaReparacion.map((h) => (
                   <option key={h.id} value={h.id}>
-                    {h.codigo_interno} - {h.nombre}
+                    {h.codigo} - {h.nombre} - Serie: {h.numero_serie}
                   </option>
                 ))}
               </select>
