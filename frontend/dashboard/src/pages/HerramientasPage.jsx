@@ -901,6 +901,7 @@ export default function HerramientasPage() {
               <th style={th}>Herramienta</th>
               <th style={th}>Marca</th>
               <th style={th}>Modelo</th>
+              <th style={th}>N° Serie</th>
               <th style={th}>Bodega</th>
               <th style={th}>Estado</th>
               <th style={th}>Acciones</th>
@@ -912,7 +913,8 @@ export default function HerramientasPage() {
                 <td style={td}>{h.codigo_interno}</td>
                 <td style={td}>{h.nombre}</td>
                 <td style={td}>{h.marca || "-"}</td>
-                <td style={td}>{h.modelo || "-"}</td>
+                <td style={td}>{h.modelo || "-"}</td>  
+                <td style={td}>{h.numero_serie || "-"}</td>
                 <td style={td}>{h.bodega || "-"}</td>
                 <td style={td}>
                   <span
