@@ -366,8 +366,8 @@ const cerrarReparacion = async (e) => {
                 <option value="">Selecciona una herramienta</option>
                 {herramientasParaReparacion.map((h) => (
                   <option key={h.id} value={h.id}>
-                    {h.codigo} - {h.nombre} - Serie: {h.numero_serie}
-                </option>
+                    {h.codigo_interno || "-"} - {h.nombre || "-"} - Serie: {h.numero_serie || "Sin serie"}
+                  </option>
                 ))}
               </select>
             </Campo>
@@ -646,26 +646,28 @@ const cerrarReparacion = async (e) => {
       <div style={{ background: "#fff", borderRadius: "12px", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#f3f4f6" }}>
-              <th style={th}>ID</th>
-              <th style={th}>Código</th>
-              <th style={th}>Herramienta</th>
-              <th style={th}>Proveedor</th>
-              <th style={th}>Falla</th>
-              <th style={th}>Fecha envío</th>
-              <th style={th}>Fecha retorno</th>
-              <th style={th}>Costo</th>
-              <th style={th}>Estado</th>
-            </tr>
-          </thead>
+              <tr style={{ background: "#f3f4f6" }}>
+                <th style={th}>ID</th>
+                <th style={th}>Código</th>
+                <th style={th}>Herramienta</th>
+                <th style={th}>N° Serie</th>
+                <th style={th}>Proveedor</th>
+                <th style={th}>Falla</th>
+                <th style={th}>Fecha envío</th>
+                <th style={th}>Fecha retorno</th>
+                <th style={th}>Costo</th>
+                <th style={th}>Estado</th>
+              </tr>
+            </thead>
           <tbody>
             {reparacionesFiltradas.map((r) => (
               <tr key={r.id}>
                 <td style={td}>{r.id}</td>
-                <td style={td}>{r.codigo_interno}</td>
-                <td style={td}>{r.herramienta}</td>
+                <td style={td}>{r.codigo_interno || "-"}</td>
+                <td style={td}>{r.herramienta || "-"}</td>
+                <td style={td}>{r.numero_serie || "Sin serie"}</td>
                 <td style={td}>{r.proveedor || "-"}</td>
-                <td style={td}>{r.descripcion_falla}</td>
+                <td style={td}>{r.descripcion_falla || "-"}</td>
                 <td style={td}>
                   {r.fecha_envio ? new Date(r.fecha_envio).toLocaleDateString("es-CL") : "-"}
                 </td>
