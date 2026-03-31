@@ -665,7 +665,7 @@ const cerrarReparacion = async (e) => {
                 <td style={td}>{r.id}</td>
                 <td style={td}>{r.codigo_interno}</td>
                 <td style={td}>{r.herramienta}</td>
-                <td style={td}>{r.numero_serie}</td>
+                <td style={td}>{h.numero_serie}</td>
                 <td style={td}>{r.proveedor || "-"}</td>
                 <td style={td}>{r.descripcion_falla}</td>
                 <td style={td}>
