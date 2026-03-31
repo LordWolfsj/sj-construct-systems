@@ -367,7 +367,7 @@ const cerrarReparacion = async (e) => {
                 {herramientasParaReparacion.map((h) => (
                   <option key={h.id} value={h.id}>
                     {h.codigo} - {h.nombre} - Serie: {h.numero_serie}
-                  </option>
+                </option>
                 ))}
               </select>
             </Campo>
@@ -663,7 +663,7 @@ const cerrarReparacion = async (e) => {
               <tr key={r.id}>
                 <td style={td}>{r.id}</td>
                 <td style={td}>{r.codigo_interno}</td>
-                <td style={td}>{r.herramienta}</td>                
+                <td style={td}>{r.herramienta}</td>
                 <td style={td}>{r.proveedor || "-"}</td>
                 <td style={td}>{r.descripcion_falla}</td>
                 <td style={td}>
