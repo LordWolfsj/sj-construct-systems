@@ -60,6 +60,24 @@ router.post("/", async (req, res) => {
       }
     }
 
+    const herramientaExistente = await pool.query(
+  `
+  SELECT id, codigo_interno, nombre, marca, modelo, numero_serie
+  FROM herramientas
+  WHERE LOWER(COALESCE(modelo, '')) = LOWER(COALESCE($1, ''))
+    AND LOWER(COALESCE(numero_serie, '')) = LOWER(COALESCE($2, ''))
+  LIMIT 1
+  `,
+  [modelo || "", numero_serie || ""]
+);
+
+if (herramientaExistente.rows.length > 0) {
+  return res.status(400).json({
+    error: "Ya existe una herramienta creada con el mismo modelo y número de serie",
+    detalle: `Herramienta existente: ${herramientaExistente.rows[0].codigo_interno} - ${herramientaExistente.rows[0].nombre}`,
+  });
+}
+
     const codigoInterno = `EL-${String(nuevoNumero).padStart(4, "0")}`;
 
     const result = await pool.query(
