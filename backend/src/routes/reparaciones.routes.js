@@ -9,7 +9,8 @@ router.get("/", async (req, res) => {
       SELECT
         r.*,
         h.codigo_interno,
-        h.nombre AS herramienta
+        h.nombre AS herramienta,
+        h.numero_serie
       FROM reparaciones r
       LEFT JOIN herramientas h ON h.id = r.herramienta_id
       ORDER BY r.id DESC
