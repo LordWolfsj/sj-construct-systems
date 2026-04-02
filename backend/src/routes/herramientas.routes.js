@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/database");
 
+// Listar herramientas
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -23,6 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Crear herramienta
 router.post("/", async (req, res) => {
   try {
     const {
@@ -43,6 +45,48 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // Verificar que la bodega exista
+    const bodegaResult = await pool.query(
+      `
+      SELECT id, nombre, tipo
+      FROM bodegas
+      WHERE id = $1
+      `,
+      [bodega_id]
+    );
+
+    if (bodegaResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Bodega no encontrada",
+      });
+    }
+
+    const bodegaSeleccionada = bodegaResult.rows[0];
+
+    // Estado inicial según tipo de bodega
+    const estadoInicial =
+      bodegaSeleccionada.tipo === "CENTRAL" ? "disponible" : "en_obra";
+
+    // Validar herramienta duplicada por modelo + número de serie
+    const herramientaExistente = await pool.query(
+      `
+      SELECT id, codigo_interno, nombre, marca, modelo, numero_serie
+      FROM herramientas
+      WHERE LOWER(COALESCE(modelo, '')) = LOWER(COALESCE($1, ''))
+        AND LOWER(COALESCE(numero_serie, '')) = LOWER(COALESCE($2, ''))
+      LIMIT 1
+      `,
+      [modelo || "", numero_serie || ""]
+    );
+
+    if (herramientaExistente.rows.length > 0) {
+      return res.status(400).json({
+        error: "Ya existe una herramienta creada con el mismo modelo y número de serie",
+        detalle: `Herramienta existente: ${herramientaExistente.rows[0].codigo_interno} - ${herramientaExistente.rows[0].nombre}`,
+      });
+    }
+
+    // Obtener último código interno
     const ultimoCodigo = await pool.query(`
       SELECT codigo_interno
       FROM herramientas
@@ -60,26 +104,9 @@ router.post("/", async (req, res) => {
       }
     }
 
-    const herramientaExistente = await pool.query(
-  `
-  SELECT id, codigo_interno, nombre, marca, modelo, numero_serie
-  FROM herramientas
-  WHERE LOWER(COALESCE(modelo, '')) = LOWER(COALESCE($1, ''))
-    AND LOWER(COALESCE(numero_serie, '')) = LOWER(COALESCE($2, ''))
-  LIMIT 1
-  `,
-  [modelo || "", numero_serie || ""]
-);
-
-if (herramientaExistente.rows.length > 0) {
-  return res.status(400).json({
-    error: "Ya existe una herramienta creada con el mismo modelo y número de serie",
-    detalle: `Herramienta existente: ${herramientaExistente.rows[0].codigo_interno} - ${herramientaExistente.rows[0].nombre}`,
-  });
-}
-
     const codigoInterno = `EL-${String(nuevoNumero).padStart(4, "0")}`;
 
+    // Insertar herramienta
     const result = await pool.query(
       `
       INSERT INTO herramientas (
@@ -109,7 +136,7 @@ if (herramientaExistente.rows.length > 0) {
         fecha_compra || null,
         costo_compra || null,
         observaciones || null,
-        "disponible",
+        estadoInicial,
       ]
     );
 
