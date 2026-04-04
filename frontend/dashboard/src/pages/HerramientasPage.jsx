@@ -767,8 +767,8 @@ export default function HerramientasPage() {
                       movimientosHojaVida.map((m) => (
                         <tr key={m.id}>
                           <td style={td}>{m.fecha ? new Date(m.fecha).toLocaleString("es-CL") : "-"}</td>
-                          <td style={td}>{m.bodega_origen || "-"}</td>
-                          <td style={td}>{m.bodega_destino || "-"}</td>
+                          <td style={td}>{m.bodega_origen_nombre || m.bodega_origen || "-"}</td>
+                          <td style={td}>{m.bodega_destino_nombre || m.bodega_destino || "-"}</td>
                           <td style={td}>{m.observacion || "-"}</td>
                         </tr>
                       ))

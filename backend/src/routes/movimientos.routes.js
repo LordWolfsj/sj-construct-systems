@@ -2,14 +2,13 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/database");
 
-// Listar movimientos
+// Listar movimientos de herramientas
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
         m.id,
         m.herramienta_id,
-        h.numero_serie,
         m.bodega_origen,
         m.bodega_destino,
         m.usuario_id,
@@ -17,6 +16,9 @@ router.get("/", async (req, res) => {
         m.fecha,
         h.codigo_interno,
         h.nombre AS herramienta,
+        h.marca,
+        h.modelo,
+        h.numero_serie,
         bo.nombre AS bodega_origen_nombre,
         bd.nombre AS bodega_destino_nombre
       FROM movimientos m
@@ -36,7 +38,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Crear movimiento
+// Crear movimiento de herramienta
 router.post("/", async (req, res) => {
   try {
     const {
@@ -104,7 +106,11 @@ router.post("/", async (req, res) => {
     );
 
     const bodegaDestinoResult = await pool.query(
-      `SELECT nombre, tipo FROM bodegas WHERE id = $1`,
+      `
+      SELECT nombre, tipo
+      FROM bodegas
+      WHERE id = $1
+      `,
       [bodega_destino]
     );
 
