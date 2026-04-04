@@ -9,6 +9,7 @@ router.get("/", async (req, res) => {
       SELECT
         m.id,
         m.herramienta_id,
+        h.numero_serie,
         m.bodega_origen,
         m.bodega_destino,
         m.usuario_id,

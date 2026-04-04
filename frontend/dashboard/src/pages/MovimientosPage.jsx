@@ -43,7 +43,7 @@ function Modal({ open, title, onClose, children }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
-          maxWidth: "760px",
+          maxWidth: "900px",
           background: "#fff",
           borderRadius: "16px",
           overflow: "hidden",
@@ -127,19 +127,25 @@ export default function MovimientosPage() {
       setError("");
 
       const movimientosRes = await fetch(`${apiBase}/movimientos`).catch(() => null);
-      const movimientosContenedoresRes = await fetch(`${apiBase}/movimientos-contenedores`).catch(() => null);
+      const movimientosContenedoresRes = await fetch(`${apiBase}/movimientos-contenedores`).catch(
+        () => null
+      );
       const herramientasRes = await fetch(`${apiBase}/herramientas`).catch(() => null);
       const contenedoresRes = await fetch(`${apiBase}/contenedores`).catch(() => null);
       const bodegasRes = await fetch(`${apiBase}/bodegas`).catch(() => null);
 
       const movimientosData = movimientosRes ? await movimientosRes.json().catch(() => []) : [];
-      const movimientosContenedoresData = movimientosContenedoresRes ? await movimientosContenedoresRes.json().catch(() => []) : [];
+      const movimientosContenedoresData = movimientosContenedoresRes
+        ? await movimientosContenedoresRes.json().catch(() => [])
+        : [];
       const herramientasData = herramientasRes ? await herramientasRes.json().catch(() => []) : [];
       const contenedoresData = contenedoresRes ? await contenedoresRes.json().catch(() => []) : [];
       const bodegasData = bodegasRes ? await bodegasRes.json().catch(() => []) : [];
 
       setMovimientos(Array.isArray(movimientosData) ? movimientosData : []);
-      setMovimientosContenedores(Array.isArray(movimientosContenedoresData) ? movimientosContenedoresData : []);
+      setMovimientosContenedores(
+        Array.isArray(movimientosContenedoresData) ? movimientosContenedoresData : []
+      );
       setHerramientas(Array.isArray(herramientasData) ? herramientasData : []);
       setContenedores(Array.isArray(contenedoresData) ? contenedoresData : []);
       setBodegas(Array.isArray(bodegasData) ? bodegasData : []);
@@ -149,9 +155,7 @@ export default function MovimientosPage() {
   };
 
   const herramientasMovibles = useMemo(() => {
-    return herramientas.filter(
-      (h) => h.estado !== "baja" && h.estado !== "en_reparacion"
-    );
+    return herramientas.filter((h) => h.estado !== "baja" && h.estado !== "en_reparacion");
   }, [herramientas]);
 
   const contenedoresMovibles = useMemo(() => {
@@ -168,16 +172,12 @@ export default function MovimientosPage() {
 
   const bodegasDestinoHerramienta = useMemo(() => {
     if (!herramientaSeleccionada) return bodegas;
-    return bodegas.filter(
-      (b) => Number(b.id) !== Number(herramientaSeleccionada.bodega_id)
-    );
+    return bodegas.filter((b) => Number(b.id) !== Number(herramientaSeleccionada.bodega_id));
   }, [bodegas, herramientaSeleccionada]);
 
   const bodegasDestinoContenedor = useMemo(() => {
     if (!contenedorSeleccionado) return bodegas;
-    return bodegas.filter(
-      (b) => Number(b.id) !== Number(contenedorSeleccionado.bodega_id)
-    );
+    return bodegas.filter((b) => Number(b.id) !== Number(contenedorSeleccionado.bodega_id));
   }, [bodegas, contenedorSeleccionado]);
 
   const movimientosFiltrados = useMemo(() => {
@@ -188,6 +188,9 @@ export default function MovimientosPage() {
       [
         mov.codigo_interno,
         mov.herramienta,
+        mov.numero_serie,
+        mov.marca,
+        mov.modelo,
         mov.bodega_origen_nombre,
         mov.bodega_destino_nombre,
         mov.observacion,
@@ -378,7 +381,9 @@ export default function MovimientosPage() {
                 <option value="">Selecciona una herramienta</option>
                 {herramientasMovibles.map((h) => (
                   <option key={h.id} value={h.id}>
-                    {h.codigo_interno} - {h.nombre}
+                    {h.codigo_interno || "-"} - {h.nombre || "-"} - {h.marca || "Sin marca"}{" "}
+                    {h.modelo || "Sin modelo"} - Serie: {h.numero_serie || "Sin serie"} - Bodega:{" "}
+                    {h.bodega || "Sin bodega"}
                   </option>
                 ))}
               </select>
@@ -422,12 +427,34 @@ export default function MovimientosPage() {
             </Campo>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-            <button type="button" onClick={() => setOpenNuevoMovimiento(false)} style={{ border: "1px solid #ccc", background: "#fff", borderRadius: "10px", padding: "10px 16px", cursor: "pointer" }}>
+          <div
+            style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}
+          >
+            <button
+              type="button"
+              onClick={() => setOpenNuevoMovimiento(false)}
+              style={{
+                border: "1px solid #ccc",
+                background: "#fff",
+                borderRadius: "10px",
+                padding: "10px 16px",
+                cursor: "pointer",
+              }}
+            >
               Cancelar
             </button>
 
-            <button type="submit" style={{ border: "none", background: "#2563eb", color: "#fff", borderRadius: "10px", padding: "10px 16px", cursor: "pointer" }}>
+            <button
+              type="submit"
+              style={{
+                border: "none",
+                background: "#2563eb",
+                color: "#fff",
+                borderRadius: "10px",
+                padding: "10px 16px",
+                cursor: "pointer",
+              }}
+            >
               Registrar movimiento
             </button>
           </div>
@@ -495,19 +522,48 @@ export default function MovimientosPage() {
             </Campo>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-            <button type="button" onClick={() => setOpenNuevoMovimientoContenedor(false)} style={{ border: "1px solid #ccc", background: "#fff", borderRadius: "10px", padding: "10px 16px", cursor: "pointer" }}>
+          <div
+            style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}
+          >
+            <button
+              type="button"
+              onClick={() => setOpenNuevoMovimientoContenedor(false)}
+              style={{
+                border: "1px solid #ccc",
+                background: "#fff",
+                borderRadius: "10px",
+                padding: "10px 16px",
+                cursor: "pointer",
+              }}
+            >
               Cancelar
             </button>
 
-            <button type="submit" style={{ border: "none", background: "#16a34a", color: "#fff", borderRadius: "10px", padding: "10px 16px", cursor: "pointer" }}>
+            <button
+              type="submit"
+              style={{
+                border: "none",
+                background: "#16a34a",
+                color: "#fff",
+                borderRadius: "10px",
+                padding: "10px 16px",
+                cursor: "pointer",
+              }}
+            >
               Registrar movimiento contenedor
             </button>
           </div>
         </form>
       </Modal>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
         <div>
           <h1 style={{ margin: 0 }}>Movimientos</h1>
           <p style={{ color: "#cbd5e1" }}>Historial de traslados entre bodegas.</p>
@@ -547,28 +603,53 @@ export default function MovimientosPage() {
       </div>
 
       {error && (
-        <div style={{ background: "#fee2e2", border: "1px solid #fecaca", color: "#991b1b", padding: "12px", borderRadius: "12px", marginBottom: "20px" }}>
+        <div
+          style={{
+            background: "#fee2e2",
+            border: "1px solid #fecaca",
+            color: "#991b1b",
+            padding: "12px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+          }}
+        >
           {error}
         </div>
       )}
 
       {success && (
-        <div style={{ background: "#dcfce7", border: "1px solid #bbf7d0", color: "#166534", padding: "12px", borderRadius: "12px", marginBottom: "20px" }}>
+        <div
+          style={{
+            background: "#dcfce7",
+            border: "1px solid #bbf7d0",
+            color: "#166534",
+            padding: "12px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+          }}
+        >
           {success}
         </div>
       )}
 
       <div style={{ marginBottom: "16px" }}>
         <input
-          placeholder="Buscar por código, herramienta, contenedor, origen, destino u observación"
+          placeholder="Buscar por código, herramienta, serie, contenedor, origen, destino u observación"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          style={{ ...inputStyle, maxWidth: "420px" }}
+          style={{ ...inputStyle, maxWidth: "520px" }}
         />
       </div>
 
       <div style={{ background: "#fff", borderRadius: "12px", overflow: "hidden", marginBottom: "24px" }}>
-        <div style={{ padding: "16px", fontWeight: "bold", color: "#111827", borderBottom: "1px solid #eee" }}>
+        <div
+          style={{
+            padding: "16px",
+            fontWeight: "bold",
+            color: "#111827",
+            borderBottom: "1px solid #eee",
+          }}
+        >
           Movimientos de herramientas
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -577,6 +658,7 @@ export default function MovimientosPage() {
               <th style={th}>Fecha</th>
               <th style={th}>Código</th>
               <th style={th}>Herramienta</th>
+              <th style={th}>N° Serie</th>
               <th style={th}>Origen</th>
               <th style={th}>Destino</th>
               <th style={th}>Observación</th>
@@ -588,6 +670,7 @@ export default function MovimientosPage() {
                 <td style={td}>{mov.fecha ? new Date(mov.fecha).toLocaleString("es-CL") : "-"}</td>
                 <td style={td}>{mov.codigo_interno || "-"}</td>
                 <td style={td}>{mov.herramienta || "-"}</td>
+                <td style={td}>{mov.numero_serie || "Sin serie"}</td>
                 <td style={td}>{mov.bodega_origen_nombre || "-"}</td>
                 <td style={td}>{mov.bodega_destino_nombre || "-"}</td>
                 <td style={td}>{mov.observacion || "-"}</td>
@@ -598,7 +681,14 @@ export default function MovimientosPage() {
       </div>
 
       <div style={{ background: "#fff", borderRadius: "12px", overflow: "hidden" }}>
-        <div style={{ padding: "16px", fontWeight: "bold", color: "#111827", borderBottom: "1px solid #eee" }}>
+        <div
+          style={{
+            padding: "16px",
+            fontWeight: "bold",
+            color: "#111827",
+            borderBottom: "1px solid #eee",
+          }}
+        >
           Movimientos de contenedores
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
