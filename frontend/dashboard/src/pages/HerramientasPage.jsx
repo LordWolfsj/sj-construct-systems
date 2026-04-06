@@ -474,89 +474,189 @@ export default function HerramientasPage() {
   };
 
   const exportarHojaVidaPDF = () => {
-    if (!herramientaHojaVida) return;
+  if (!herramientaHojaVida) return;
 
-    try {
-      const doc = new jsPDF("p", "mm", "a4");
+  try {
+    const doc = new jsPDF("p", "mm", "a4");
 
-      doc.setFontSize(16);
-      doc.text("HOJA DE VIDA DE HERRAMIENTA", 14, 15);
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-      doc.setFontSize(11);
-      doc.text(`Código: ${herramientaHojaVida.codigo_interno || "-"}`, 14, 24);
-      doc.text(`Nombre: ${herramientaHojaVida.nombre || "-"}`, 14, 31);
-      doc.text(`Marca: ${herramientaHojaVida.marca || "-"}`, 14, 38);
-      doc.text(`Modelo: ${herramientaHojaVida.modelo || "-"}`, 14, 45);
-      doc.text(`Número de serie: ${herramientaHojaVida.numero_serie || "-"}`, 14, 52);
-      doc.text(`Bodega actual: ${herramientaHojaVida.bodega || "-"}`, 14, 59);
-      doc.text(`Estado actual: ${herramientaHojaVida.estado || "-"}`, 14, 66);
-      doc.text(`Costo de compra: $${costoCompraHojaVida.toLocaleString("es-CL")}`, 14, 73);
-      doc.text(`Costo en reparaciones: $${costoReparacionesHojaVida.toLocaleString("es-CL")}`, 14, 80);
-      doc.text(`Costo acumulado total: $${costoTotalHojaVida.toLocaleString("es-CL")}`, 14, 87);
+    // Encabezado
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 28, "F");
 
-      autoTable(doc, {
-        startY: 95,
-        head: [["Historial de movimientos"]],
-        body: [[""]],
-        theme: "plain",
-        headStyles: {
-          fillColor: [37, 99, 235],
-          textColor: 255,
-          fontStyle: "bold",
-        },
-      });
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("HOJA DE VIDA DE HERRAMIENTA", 14, 12);
 
-      autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 2,
-        head: [["Fecha", "Origen", "Destino", "Observación"]],
-        body:
-          movimientosHojaVida.length > 0
-            ? movimientosHojaVida.map((m) => [
-                m.fecha ? new Date(m.fecha).toLocaleString("es-CL") : "-",
-                m.bodega_origen || "-",
-                m.bodega_destino || "-",
-                m.observacion || "-",
-              ])
-            : [["-", "-", "-", "Sin movimientos registrados"]],
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [59, 130, 246] },
-      });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Sistema Inventario Herramientas", 14, 19);
+    doc.text(
+      `Fecha emisión: ${new Date().toLocaleDateString("es-CL")}`,
+      pageWidth - 55,
+      19
+    );
 
-      autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 8,
-        head: [["Historial de reparaciones"]],
-        body: [[""]],
-        theme: "plain",
-        headStyles: {
-          fillColor: [234, 88, 12],
-          textColor: 255,
-          fontStyle: "bold",
-        },
-      });
+    // Datos generales
+    let y = 38;
+    doc.setTextColor(17, 24, 39);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Datos generales", 14, y);
 
-      autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 2,
-        head: [["Fecha envío", "Fecha retorno", "Proveedor", "Falla", "Estado", "Costo"]],
-        body:
-          reparacionesHojaVida.length > 0
-            ? reparacionesHojaVida.map((r) => [
-                r.fecha_envio ? new Date(r.fecha_envio).toLocaleDateString("es-CL") : "-",
-                r.fecha_retorno ? new Date(r.fecha_retorno).toLocaleDateString("es-CL") : "-",
-                r.proveedor || "-",
-                r.descripcion_falla || "-",
-                r.estado || "-",
-                r.costo_reparacion ? `$${Number(r.costo_reparacion).toLocaleString("es-CL")}` : "-",
-              ])
-            : [["-", "-", "-", "Sin reparaciones registradas", "-", "-"]],
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [245, 158, 11] },
-      });
+    y += 6;
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(14, y, 118, 42, 3, 3);
 
-      doc.save(`hoja_de_vida_${herramientaHojaVida.codigo_interno || "herramienta"}.pdf`);
-    } catch {
-      setError("No se pudo exportar la hoja de vida a PDF");
-    }
-  };
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+
+    const datos = [
+      `Código: ${herramientaHojaVida.codigo_interno || "-"}`,
+      `Nombre: ${herramientaHojaVida.nombre || "-"}`,
+      `Marca: ${herramientaHojaVida.marca || "-"}`,
+      `Modelo: ${herramientaHojaVida.modelo || "-"}`,
+      `Número de serie: ${herramientaHojaVida.numero_serie || "-"}`,
+      `Bodega actual: ${herramientaHojaVida.bodega || "-"}`,
+      `Estado actual: ${herramientaHojaVida.estado || "-"}`,
+    ];
+
+    let datosY = y + 7;
+    datos.forEach((texto) => {
+      doc.text(texto, 18, datosY);
+      datosY += 5;
+    });
+
+    // Tarjetas de costos
+    const costoX = 138;
+    const cardW = 58;
+    const cardH = 14;
+
+    doc.setFillColor(239, 246, 255);
+    doc.roundedRect(costoX, y, cardW, cardH, 3, 3, "F");
+    doc.setTextColor(30, 58, 138);
+    doc.setFont("helvetica", "bold");
+    doc.text("Costo de compra", costoX + 4, y + 5);
+    doc.setFont("helvetica", "normal");
+    doc.text(`$${costoCompraHojaVida.toLocaleString("es-CL")}`, costoX + 4, y + 11);
+
+    doc.setFillColor(255, 247, 237);
+    doc.roundedRect(costoX, y + 17, cardW, cardH, 3, 3, "F");
+    doc.setTextColor(154, 52, 18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Costo en reparaciones", costoX + 4, y + 22);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `$${costoReparacionesHojaVida.toLocaleString("es-CL")}`,
+      costoX + 4,
+      y + 28
+    );
+
+    doc.setFillColor(236, 253, 245);
+    doc.roundedRect(costoX, y + 34, cardW, cardH, 3, 3, "F");
+    doc.setTextColor(22, 101, 52);
+    doc.setFont("helvetica", "bold");
+    doc.text("Costo acumulado total", costoX + 4, y + 39);
+    doc.setFont("helvetica", "normal");
+    doc.text(`$${costoTotalHojaVida.toLocaleString("es-CL")}`, costoX + 4, y + 45);
+
+    // Historial de movimientos
+    let startY = y + 52;
+
+    doc.setTextColor(17, 24, 39);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Historial de movimientos", 14, startY);
+
+    autoTable(doc, {
+      startY: startY + 4,
+      head: [["Fecha", "Origen", "Destino", "Observación"]],
+      body:
+        movimientosHojaVida.length > 0
+          ? movimientosHojaVida.map((m) => [
+              m.fecha ? new Date(m.fecha).toLocaleString("es-CL") : "-",
+              m.bodega_origen_nombre || m.bodega_origen || "-",
+              m.bodega_destino_nombre || m.bodega_destino || "-",
+              m.observacion || "-",
+            ])
+          : [["-", "-", "-", "Sin movimientos registrados"]],
+      theme: "grid",
+      styles: {
+        fontSize: 8.5,
+        cellPadding: 3,
+        textColor: [17, 24, 39],
+      },
+      headStyles: {
+        fillColor: [37, 99, 235],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
+    });
+
+    // Historial de reparaciones
+    const reparacionesY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(17, 24, 39);
+    doc.text("Historial de reparaciones", 14, reparacionesY);
+
+    autoTable(doc, {
+      startY: reparacionesY + 4,
+      head: [["Fecha envío", "Fecha retorno", "Proveedor", "Falla", "Estado", "Costo"]],
+      body:
+        reparacionesHojaVida.length > 0
+          ? reparacionesHojaVida.map((r) => [
+              r.fecha_envio ? new Date(r.fecha_envio).toLocaleDateString("es-CL") : "-",
+              r.fecha_retorno ? new Date(r.fecha_retorno).toLocaleDateString("es-CL") : "-",
+              r.proveedor || "-",
+              r.descripcion_falla || "-",
+              r.estado || "-",
+              r.costo_reparacion
+                ? `$${Number(r.costo_reparacion).toLocaleString("es-CL")}`
+                : "-",
+            ])
+          : [["-", "-", "-", "Sin reparaciones registradas", "-", "-"]],
+      theme: "grid",
+      styles: {
+        fontSize: 8.5,
+        cellPadding: 3,
+        textColor: [17, 24, 39],
+      },
+      headStyles: {
+        fillColor: [234, 88, 12],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [255, 251, 235],
+      },
+    });
+
+    // Pie de página
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(14, finalY, pageWidth - 14, finalY);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(
+      "Documento generado automáticamente por Sistema Inventario Herramientas",
+      14,
+      finalY + 6
+    );
+
+    doc.save(`hoja_de_vida_${herramientaHojaVida.codigo_interno || "herramienta"}.pdf`);
+  } catch {
+    setError("No se pudo exportar la hoja de vida a PDF");
+  }
+};
 
   const getEstadoStyle = (estado) => {
     switch (estado) {
