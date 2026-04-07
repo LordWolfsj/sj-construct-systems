@@ -11,7 +11,7 @@ const obrasRoutes = require("./routes/obras.routes");
 const bodegasRoutes = require("./routes/bodegas.routes");
 const movimientosRoutes = require("./routes/movimientos.routes");
 const contenedoresRoutes = require("./routes/contenedores.routes");
-const movimientosContenedoresRoutes = require("./routes/movimientosContenedores.routes");
+const movimientosContenedoresRoutes = require("./routes/movimientos-contenedores.routes");
 
 const app = express();
 
